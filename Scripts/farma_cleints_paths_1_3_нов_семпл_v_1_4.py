@@ -8,8 +8,10 @@ print("current time:-", dt.datetime.now())
 
 
 df = pd.read_csv(
-    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
-    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
+    # Sampled base
+    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
+    # Whole base
+    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
                 #,delimiter = ';'
                 ,delimiter = '\t'
                 ,decimal =','
@@ -34,7 +36,7 @@ df['internet_order_id'] = df['internet_order_id'].astype('str')
 
 df.info()
 #df.head(3)
-print("end of: " + "данные загружены")
+print("end of: " + "данные загружены" + "; rows = ",  df.shape[0])
 #print(time.time())
 print("current time:-", dt.datetime.now())
 
@@ -186,6 +188,7 @@ df4_orders_paths['repited_orders_fact_sum']=df4_orders_paths['repited_orders_fac
 
 print('end of: ' + "объединяем таблицы df2_paths   и df3_orders_count_sum")
 
+
 # исследуем монотонность "kanal_ukrupnenno"
 df_ex = df4_orders_paths.copy()
 
@@ -241,21 +244,18 @@ def paths_to_tend(path): # path as string
     if step not in dct_step_types:
       dct_step_types.append(step)
 
-
-
   ###
-
   # надо отсортировать список видов шагов
   dct_step_types.sort()
 
-  # список конвретируем с строку
+  # список конвeртируем с строку
   # my_lst_str = ''.join(map(str, my_lst))
   dct_step_types_str = ', '.join(map(str, dct_step_types))
 
   if counter == 1:
-    result =  "1 repited order, in: " + first_step
+    result =  "1 повторная покупка, в: " + first_step
   else:
-    result = "few_repited_orders, in: " + dct_step_types_str
+    result = "несколько повторных покупок, в: " + dct_step_types_str
     #result = str(counter) + " repited orders in: " + dct_step_types_str
 
 
@@ -267,6 +267,14 @@ def paths_to_tend(path): # path as string
 # начало обработки таблицы функцией и нахождение монотонности
 df_ex3['uniq_steps_sorted'] = df_ex3['kanal_ukrupnenno'].map(paths_to_tend)
 #print(df_ex3.head(30))
+#df_ex3.info()
+
+#  к таблице df4_orders_paths джойним таблицу монотонности
+df4_orders_paths = df4_orders_paths.set_index('phone_clear').join(df_ex3[['phone_clear', 'uniq_steps_sorted']].set_index('phone_clear'), rsuffix='_').reset_index()
+
+#print('после джойна проверка')
+#df4_orders_paths.info()
+
 
 df_ex4 = df_ex3.copy()
 # ghbvth elfkbnm df3_repited_orders_fact = df2.groupby(['phone_clear']).fact_grs.agg(repited_orders_fact_sum = 'sum').reset_index()
@@ -282,14 +290,10 @@ df_ex4.sort_values(by = ['iniq_phone_clear_count'], ascending=False)
 print('end of: ' + '# начало обработки таблицы функцией и нахождение монотонности')
 print("current time:-", dt.datetime.now())
 
-### запись результатов в таблицы
-print('start of: ' + 'запись результатов в таблицы')
-#print("current time:-", dt.datetime.now())
+#exit()
 
-work_output_folder = r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\\'
 
-#№№№ агрегированно пути
-## дропаем лишние колонки
+#### дропаем лишние колонки, они пока не нужны
 df4_orders_paths = df4_orders_paths.drop(columns=[
     'date_id'
     ,'date_First_purchese_in_ApRU'
@@ -303,7 +307,35 @@ df4_orders_paths = df4_orders_paths.drop(columns=[
     ,'Date'
     ,'year_month'
     ,'second_purchase_date'
+    ,'date_1st_purchese_in_ApRU'
+    ,'duration_first_last'
+    ,'duration_first_today'
+    ,'avg_repited_orders_count_per_month_today'
+
 ])
+
+### скрытие номеров телефонов перед записью
+df4_orders_paths['phone_clear'] = df4_orders_paths['phone_clear'].str.replace('1','R') \
+        .str.replace('2','I') \
+        .str.replace('3','G') \
+        .str.replace('4','L') \
+        .str.replace('5','A') \
+# метод ниже не сработал - показывал NAN
+#vals_to_replace = {'1':'E', '2':'D', '3':'C'}
+#df4_orders_paths['phone_clear']  = df4_orders_paths['phone_clear'].map(vals_to_replace)
+###
+
+#print(df4_orders_paths.head())
+
+
+### запись результатов в таблицы
+print('start of: ' + 'запись результатов в таблицы')
+#print("current time:-", dt.datetime.now())
+
+work_output_folder = r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\\'
+
+#№№№ агрегированно пути
+
 
 trend_filename ='_to_BI_output_trends_path.csv'
 trend_output_path = work_output_folder + trend_filename
