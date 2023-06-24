@@ -9,9 +9,9 @@ print("current time:-", dt.datetime.now())
 
 df = pd.read_csv(
     # Sampled base
-    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
+    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
     # Whole base
-    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
+    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
                 #,delimiter = ';'
                 ,delimiter = '\t'
                 ,decimal =','
@@ -152,7 +152,7 @@ print('end of: ' + 'находим длину периода истории - с
 # find average orders_per_month
 df3_orders_count['avg_repited_orders_count_per_month_last_month'] = round(df3_orders_count['count_repited_orders'] / df3_orders_count['duration_first_last_months'],1)
 df3_orders_count['avg_repited_orders_count_per_month_today'] = round(df3_orders_count['count_repited_orders'] / df3_orders_count['duration_first_today_months'],1)
-df3_orders_count['client_status'] = df3_orders_count['duration_no_action_months'].apply(lambda x: 'active_client' if x <= 2 else 'sleeping_client')
+df3_orders_count['client_status'] = df3_orders_count['duration_no_action_months'].apply(lambda x: 'active_client' if x <= 3 else 'sleeping_3+_months_client')
 
 #df3_orders_count.info()
 #print(df3_orders_count.head(10))
