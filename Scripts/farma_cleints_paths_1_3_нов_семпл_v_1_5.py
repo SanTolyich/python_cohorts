@@ -10,9 +10,9 @@ print("current time:-", dt.datetime.now())
 
 df = pd.read_csv(
     # Sampled base
-    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
+    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
     # Whole base
-    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
+    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
                 #,delimiter = ';'
                 ,delimiter = '\t'
                 ,decimal =','
