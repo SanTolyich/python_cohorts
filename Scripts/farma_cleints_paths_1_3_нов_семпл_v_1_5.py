@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import datetime as dt
 import time
+import openpyxl
 pd.options.mode.chained_assignment = None #  убираем предупреждение
 print('start')
 print("current time:-", dt.datetime.now())
@@ -9,9 +10,9 @@ print("current time:-", dt.datetime.now())
 
 df = pd.read_csv(
     # Sampled base
-    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
+    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
     # Whole base
-    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
+    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
                 #,delimiter = ';'
                 ,delimiter = '\t'
                 ,decimal =','
@@ -313,7 +314,32 @@ df4_orders_paths = df4_orders_paths.drop(columns=[
     ,'avg_repited_orders_count_per_month_today'
 
 ])
+### добавляем данные об итоговых предпочтениях клиентов (определенным по весам в лоджиноме)
+print('start - подгрузка данных о предпочтениях из результатов Лоджинома')
+# !!!!!! Проверь, что этот файл обновлен и актуален
+file = r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct-dyn_предпочтения клиентов.xlsx'
+xl = pd.ExcelFile(file)
+#print(xl.sheet_names)
+df_preferences= xl.parse('Лист1')
+df_preferences.rename(columns = {'канал укрупненно': 'channel_wide_preferred_by_weights'}, inplace = True )
+df_preferences.rename(columns = {'brand_name': 'brand_name_preferred_by_weights'}, inplace = True )
+df_preferences['phone_clear'] = df_preferences['phone_clear'].astype('str')
+df_preferences.info()
+print(df_preferences. head())
+print('end of - подгрузка данных о предпочтениях из результатов Лоджинома')
+print("current time:-", dt.datetime.now())
+df4_orders_paths. info()
+print(df4_orders_paths. head())
+print('start - метчинг большой таблицы с данными о предпочтениях из результатов Лоджинома')
 
+df4_orders_paths = df4_orders_paths.set_index('phone_clear').join(df_preferences.set_index('phone_clear'), rsuffix='_').reset_index()
+
+df4_orders_paths. info()
+
+print('end of - метчинг большой таблицы с данными о предпочтениях из результатов Лоджинома')
+print("current time:-", dt.datetime.now())
+
+exit()
 ### скрытие номеров телефонов перед записью
 df4_orders_paths['phone_clear'] = df4_orders_paths['phone_clear'].str.replace('1','R') \
         .str.replace('2','I') \
