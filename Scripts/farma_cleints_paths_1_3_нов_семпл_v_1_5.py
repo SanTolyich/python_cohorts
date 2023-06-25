@@ -339,7 +339,7 @@ df4_orders_paths. info()
 print('end of - метчинг большой таблицы с данными о предпочтениях из результатов Лоджинома')
 print("current time:-", dt.datetime.now())
 
-exit()
+
 ### скрытие номеров телефонов перед записью
 df4_orders_paths['phone_clear'] = df4_orders_paths['phone_clear'].str.replace('1','R') \
         .str.replace('2','I') \
