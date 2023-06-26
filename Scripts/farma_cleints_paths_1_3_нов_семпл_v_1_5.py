@@ -325,6 +325,14 @@ df_preferences.rename(columns = {'канал укрупненно': 'channel_wid
 df_preferences.rename(columns = {'brand_name': 'brand_name_preferred_by_weights'}, inplace = True )
 df_preferences['phone_clear'] = df_preferences['phone_clear'].astype('str')
 df_preferences.info()
+
+
+
+ ######### ! проверить на дубли номера телефонов!!!!!!
+ ##______________________________________________
+
+
+
 print(df_preferences. head())
 print('end of - подгрузка данных о предпочтениях из результатов Лоджинома')
 print("current time:-", dt.datetime.now())
