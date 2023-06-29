@@ -247,7 +247,7 @@ def paths_to_tend(path): # path as string
 
   ###
   # надо отсортировать список видов шагов
-  dct_step_types.sort()
+    dct_step_types.sort()
 
   # список конвeртируем с строку
   # my_lst_str = ''.join(map(str, my_lst))
@@ -317,17 +317,34 @@ df4_orders_paths = df4_orders_paths.drop(columns=[
 ### добавляем данные об итоговых предпочтениях клиентов (определенным по весам в лоджиноме)
 print('start - подгрузка данных о предпочтениях из результатов Лоджинома')
 # !!!!!! Проверь, что этот файл обновлен и актуален
-file = r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct-dyn_предпочтения клиентов.xlsx'
-xl = pd.ExcelFile(file)
+###### импорт из экселя стал давать ошибку
+#file = r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct-dyn_предпочтения клиентов.xlsx'
+#xl = pd.ExcelFile(file)
 #print(xl.sheet_names)
-df_preferences= xl.parse('Лист1')
+#df_preferences= xl.parse('Лист1')
+###
+df_preferences = pd.read_csv(
+
+    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct-dyn_предпочтения клиентов.csv'
+                #,delimiter = ';'
+                ,delimiter = '\t'
+                ,decimal =','
+                #,encoding = 'utf'
+                 ,low_memory=False  # ругается на разные типы данных в столбцах 6-7, вроде лоу-мемори флаг этодолжен пофиксить
+                ,encoding = 'windows-1251' # по умолчанию utf-8
+                ,encoding_errors = 'replace'
+                #,nrows =1000 # чтобы не весь файл пока тащить]
+                )
+
+
+
 df_preferences.rename(columns = {'канал укрупненно': 'channel_wide_preferred_by_weights'}, inplace = True )
 df_preferences.rename(columns = {'brand_name': 'brand_name_preferred_by_weights'}, inplace = True )
 df_preferences['phone_clear'] = df_preferences['phone_clear'].astype('str')
 df_preferences.info()
 
 
-
+#exit()
  ######### ! проверить на дубли номера телефонов!!!!!!
  ##______________________________________________
 
