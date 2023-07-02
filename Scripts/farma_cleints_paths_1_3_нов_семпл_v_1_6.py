@@ -15,9 +15,9 @@ print("current time:-", dt.datetime.now())
 
 df = pd.read_csv(
     # Sampled base
-    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
+    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу_SAMPLED.csv'
     # Whole base
-    #r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
+    r'c:\Users\aa_ryabukhin\Documents\С_Рябухин_рабочая\аптека ру динамика клиентов\_dct_dyn_Повторные покупки клиентов АпРу.csv'
                 #,delimiter = ';'
                 ,delimiter = '\t'
                 ,decimal =','
@@ -476,8 +476,9 @@ df_ex5.info()
 
 
 print(df_ex5[['phone_clear','date_id','kanal_ukrupnenno', 'our_dates','our_dates_length']].head(60))
-exit()
 
+df4_orders_paths = df4_orders_paths.set_index('phone_clear').join(df_ex5.set_index('phone_clear'), rsuffix='_').reset_index()
+print("! макс длительности последовательных месяцев наших покупок - найдены")
 
 #### дропаем лишние колонки, они пока не нужны
 df4_orders_paths = df4_orders_paths.drop(columns=[
@@ -529,7 +530,7 @@ df_preferences['phone_clear'] = df_preferences['phone_clear'].astype('str')
 df_preferences.info()
 
 
-#exit()
+
  ######### ! проверить на дубли номера телефонов!!!!!!
  ##______________________________________________
 
@@ -550,7 +551,7 @@ print('end of - метчинг большой таблицы с данными �
 print("current time:-", dt.datetime.now())
 
 print(df4_orders_paths. head())
-exit()
+
 
 
 ### скрытие номеров телефонов перед записью
