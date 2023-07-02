@@ -4,6 +4,11 @@ import datetime as dt
 import time
 import openpyxl
 pd.options.mode.chained_assignment = None #  убираем предупреждение
+##  настраиваем ширину вывода в консоли в символах и в столбцах
+pd.set_option('display.width', 400)
+pd.set_option('display.max_columns', 10)
+##
+
 print('start')
 print("current time:-", dt.datetime.now())
 
@@ -293,6 +298,8 @@ print("current time:-", dt.datetime.now())
 
 
 ####### доп анализ по лояльности
+
+''' # нужно ли нам это - поиск первых закзов в наши РУ - отдельно таблицей?
 print('####### доп анализ по лояльности')
 # найти дату первой покупки внашиРу или НашОфлайн
 df_ex5_only_our = df2_paths_raw.copy()
@@ -326,58 +333,149 @@ df_ex5_only_our = df_ex5_only_our.set_index('phone_clear').join(df_ex5_only_our_
 
 #df_ex5_only_our['date_First_purchese_in_OUR'] =
 df_ex5_only_our.info()
+'''
 
 
 
-exit()
 df_ex5 = df4_orders_paths.copy()
-
 # ставим только год-месяц даты первой покупки
-df_ex5['year_month_first_pershase'] = df_ex5['date_First_purchese_in_ApRU'].str[:6]
+df_ex5['year_month_first_purshase'] = df_ex5['date_First_purchese_in_ApRU'].str[:6]
 #
 
-def paths_to_tend(path): # path as string
-  first_step = path.split('->')[0] #пример - первое значение
-  steps_list = path.split('->')
+
+def our_paths_mono(vec): # path as string
+
+  kanal_ukrupnenno = vec[0]
+  date_id = vec[1]
+  #first_step = kanal_ukrupnenno.split('->')[0] #пример - первое значение
+  steps_list = kanal_ukrupnenno.split('->')
+  #zero_step = 'Apteka.ru'
+  #zero_step_date_id =
+  #first_step_date_id = date_id.split('->')[0]  # пример - первое значение
+  steps_list_dates = date_id.split('->')
+
   counter = 0
-  #current_step = first_step
-  #trend ="?"
-  dct_step_types = []
+
+  dct_step_types = ['НашиРу','НашОфлайн']
+  dct_step_dates = []
   #dct_step_types.append(first_step)
   for step in steps_list:
-    counter += 1
+
     #current_step = step
     #if counter > 1:
-    if step not in dct_step_types:
-      dct_step_types.append(step)
+    if step in dct_step_types:
+        #first_step_date_id = date_id.split('->')[0]
+        #new_step = steps_list_dates[counter] # вариант с полным date_id
+        new_step = steps_list_dates[counter][:6]  # вариант с обрезанным  date_id. берем только год месяц
 
-  ###
-  # надо отсортировать список видов шагов
-    dct_step_types.sort()
+        if counter == 0:
+            dct_step_dates.append(new_step)
+        #if (counter > 0 ) and (previous_step_date != "_") and (new_step != previous_step_date):
+        if (counter > 0) and (new_step != previous_step_date):
+            q = 1
+            dct_step_dates.append(new_step)
+            # тут код для нахождения длительности
+
+
+
+
+        previous_step_date = new_step
+
+      #dct_step_types.append(step)
+    else:
+
+        if counter == 0:
+            dct_step_dates.append("_")
+        else:
+            if previous_step_date != "_":
+                dct_step_dates.append("_")
+
+        previous_step_date = "_"
+
+    counter += 1
 
   # список конвeртируем с строку
-  # my_lst_str = ''.join(map(str, my_lst))
-  dct_step_types_str = ', '.join(map(str, dct_step_types))
-
-  if counter == 1:
-    result =  "1 повторная покупка, в: " + first_step
-  else:
-    result = "несколько повторных покупок, в: " + dct_step_types_str
-    #result = str(counter) + " repited orders in: " + dct_step_types_str
-
+  dct_step_dates_str = ', '.join(map(str, dct_step_dates))
+  result = dct_step_dates_str
 
   return result
 
-#df_ex5['uniq_steps_sorted'] = df_ex5['kanal_ukrupnenno'].map(paths_to_tend)
+df_ex5['our_dates'] = df_ex5[['kanal_ukrupnenno','date_id']].apply(our_paths_mono, axis=1)
+
+
+#### в новом столбце будем анализировать длительность лояльности к нам
+def our_paths_mono_lenght(our_dates): # path as string
+
+    #first_step = kanal_ukrupnenno.split('->')[0] #пример - первое значение
+  months_list = our_dates.split(', ')
+  counter = 0
+
+  dct_lengths = []
+  dct_lengths2 = []
+  mono_steps_count = 0
+  first_month = None
+  delta_months_max = 0
+    #dct_step_types.append(first_step)
+  for month in months_list:
+
+    if (month == '_') and (counter == 0):
+        #dct_lengths = []
+        mono_steps_count = 0
+        dct_lengths.append('_')
+        previous_month = '_'
+        first_month = None
+    elif (month == '_') and (counter != 0):
+        mono_steps_count = 0
+        dct_lengths.append('_')
+        previous_month = '_'
+        first_month = None
+    elif (month != '_'):  #and (previous_month != '_'):
+        if first_month == None:
+            first_month = month
+        #mono_steps_count += 1
+        #dct_lengths.append(mono_steps_count)
+        previous_month = month
+        if (previous_month != '_') and (first_month == month):
+            delta_months = 0
+            dct_lengths.append(delta_months)
+        if (previous_month != '_') and (first_month != month) :
+            # вычисляем  разницу между  первым и текущим шагом в непрерывной последовательности
+            delta_months = (int(month[:4]) - int(first_month[:4]))*12  \
+                          + int(month[4:]) - int(first_month[4:])
+
+        ## вычисляем max разницу между  первым и текущим шагом в непрерывной последовательности
+        if delta_months > delta_months_max:
+            delta_months_max = delta_months
+        #
+
+            dct_lengths.append(delta_months)
+
+    counter += 1
+
+  # список конвeртируем с строку
+  dct_months_str = ', '.join(map(str, dct_lengths)) # если пишем последовательность длительностей
+  dct_months_str = dct_months_str + "| max = " + str(delta_months_max)  # если пишем максимальный результат к последовательности
+
+  result = dct_months_str
+
+  return result
+
+df_ex5['our_dates_length'] = df_ex5['our_dates'].map(our_paths_mono_lenght)
+
+
+#df['NewCol'] = df[['TimeCol', 'ResponseCol']].apply(segmentMatch, axis=1)
+# пример  df_ex3['uniq_steps_sorted'] = df_ex3['kanal_ukrupnenno'].map(paths_to_tend)
 
 
 
-
+print('работа функции нахождения моно закончена')
 df_ex5.info()
 #print(df_ex5.head())
 #print(df_ex5['year_month_first_pershase'].head(5))
+#df_ex5_cut = df_ex5['phone_clear','date_id','kanal_ukrupnenno', 'our_dates']
 
 
+print(df_ex5[['phone_clear','date_id','kanal_ukrupnenno', 'our_dates','our_dates_length']].head(60))
 exit()
 
 
