@@ -476,9 +476,10 @@ df_ex5.info()
 
 
 print(df_ex5[['phone_clear','date_id','kanal_ukrupnenno', 'our_dates','our_dates_length']].head(60))
- df_ex5 = df_ex5[['phone_clear', 'our_dates','our_dates_length']
 
-df4_orders_paths = df4_orders_paths.set_index('phone_clear').join(df_ex5.set_index('phone_clear'), rsuffix='_').reset_index()
+df_ex5_cut = df_ex5[['phone_clear', 'our_dates','our_dates_length']]
+
+df4_orders_paths = df4_orders_paths.set_index('phone_clear').join(df_ex5_cut.set_index('phone_clear'), rsuffix='_').reset_index()
 print("! макс длительности последовательных месяцев наших покупок - найдены")
 
 #### дропаем лишние колонки, они пока не нужны
